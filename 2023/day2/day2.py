@@ -15,6 +15,7 @@ def build_game_map(lines):
     return game_map
 
 # Part 1
+# Check if each cube is less the max allowed for its color
 def p1(game_map):
     return sum([id for id, sets in game_map.items() if all([
                 cubes.get("green",0)<=MAX_GREEN and
@@ -23,6 +24,7 @@ def p1(game_map):
                     for cubes in sets])])
 
 # Part 2
+# Get the max number of cubes in a game for each color
 def p2(game_map):
     return sum(
             max(map(lambda x: x.get("green",0), sets)) * 
