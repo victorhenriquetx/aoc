@@ -1,46 +1,40 @@
-import sys
+from sys import argv
 
 MAX_BLUE = 14
 MAX_RED = 12
 MAX_GREEN = 13    
 
+def build_game_map(lines):
+    game_map = {}
+    for line in lines:
+        [tag, game] = line.replace("Game ", "").split(": ")
+        game_map[int(tag)]=[{
+            cube.split()[1]: int(cube.split()[0]) 
+                for cube in set.split(",")}
+                    for set in game.split(";")]
+    return game_map
+
 # Part 1
-def p1(line):
-    [tag, game] = line.split(": ")
-    game_id = int(tag.replace("Game ", ""))
-    for set in game.split("; "):
-        poss = 1
-        for cube in set.split(", "):
-            [num, color] = cube.split(" ")
-            if color == "green" and int(num)<=13 or color == "red" and int(num)<=12 or color == "blue" and int(num)<=14: 
-                poss *= 1
-            else:
-                poss *= 0
-        game_id *= poss
-    return game_id
+def p1(game_map):
+    return sum([id for id, sets in game_map.items() if all([
+                cubes.get("green",0)<=MAX_GREEN and
+                cubes.get("red",0)<=MAX_RED and
+                cubes.get("blue",0)<=MAX_BLUE 
+                    for cubes in sets])])
 
 # Part 2
-def p2(line):
-    game = line.split(": ")[1]
-    min_green, min_red, min_blue = 1,1,1 
-    for set in game.split("; "):
-        for cube in set.split(", "):
-            [num, color] = cube.split(" ")
-            num = int(num)
-            if color == "green" and num>min_green:
-                min_green = num
-            if color == "red" and num>min_red:
-                min_red = num  
-            if color == "blue" and num>min_blue:
-                min_blue = num 
-    return min_blue*min_green*min_red
-
-
+def p2(game_map):
+    return sum(
+            max(map(lambda x: x.get("green",0), sets)) * 
+            max(map(lambda x: x.get("red",0), sets)) *
+            max(map(lambda x: x.get("blue",0), sets))
+                for _,sets in game_map.items())
 
 if __name__ == "__main__":
-    with open(sys.argv[1], "r") as f, open(sys.argv[2], "w") as out:
+    with open(argv[1], "r") as f, open(argv[2], "w") as out:
         lines = f.read().splitlines()
-        solution = sum(map(p1, lines))
-        solution2 = sum(map(p2, lines))
+        game_map = build_game_map(lines)
+        solution = p1(game_map)
+        solution2 = p2(game_map)
         out.write("Part 1: " + str(solution) + "\n")
         out.write("Part 2: " + str(solution2) + "\n")
